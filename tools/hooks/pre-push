@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+if [ -d ".venv" ]; then
+    MYPY_EXTRA_OPTIONS=--no-incremental make py-pre-push
+else
+    echo "😮 .venv/ not setup. Skip pre-push hook for python"
+fi

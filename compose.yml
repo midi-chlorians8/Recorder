@@ -1,0 +1,74 @@
+services:
+  portal:
+    build:
+      context: ./
+      dockerfile: services/nooga/crs_portal/Dockerfile
+    command: >
+      ./services/uvicorn-run.sh nooga.crs_portal.main:app
+        --port=${CRS_PORTAL_PORT}
+        --host=0.0.0.0
+        --reload
+        --log-level=info
+    hostname: ${CRS_PORTAL_HOST}
+    container_name:  portal
+    ports:
+      - "${CRS_PORTAL_PORT}:${CRS_PORTAL_PORT}"
+    volumes:
+      - source: services/
+        target: /services
+        type: bind
+        read_only: true
+    env_file:
+      - ./.env
+      #- ./.env.override
+    environment:
+      - CRS_VERSION
+    #network_mode: host
+    extra_hosts:
+        - "${CRS_DB_HOST}:127.0.0.1"
+    # logging:
+    #   options:
+    #     max-size: "2m"
+    #     max-file: "3"
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "4"
+    profiles:
+      - backend
+
+  db:
+    image: postgres:14.9-alpine
+    container_name: db
+    hostname: db
+    ports:
+      - "${CRS_DB_PORT}:${CRS_DB_PORT}"
+    environment:
+      POSTGRES_DB: ${CRS_DB_NAME}
+      POSTGRES_USER: ${CRS_DB_USER}
+      POSTGRES_PASSWORD: ${CRS_DB_PASSWORD}
+      # Used by init.sh script
+      CRS_DB_USER: ${CRS_DB_USER}
+      CRS_DB_HOST: ${CRS_DB_HOST}
+      CRS_DB_PORT: ${CRS_DB_PORT}
+      # CRS_AIRFLOW_DB_NAME: ${CRS_AIRFLOW_DB_NAME}
+      # CRS_AIRFLOW_DB_USER: ${CRS_AIRFLOW_DB_USER}
+      # CRS_AIRFLOW_DB_PASSWORD: ${CRS_AIRFLOW_DB_PASSWORD}
+    volumes:
+    #  - ./infrastructure/local/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - db:/var/lib/postgresql/data
+    command: -p ${CRS_DB_PORT}
+    # healthcheck:
+    #   test: [
+    #     "CMD-SHELL",
+    #     "pg_isready -p ${CRS_DB_PORT} -U ${CRS_DB_USER} -d ${CRS_AIRFLOW_DB_NAME}"
+    #   ]
+    #   interval: 3s
+    #   timeout: 5s
+    #   retries: 5
+
+volumes:
+  db:
