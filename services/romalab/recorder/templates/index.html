@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Метаданные -->
+    <meta charset="UTF-8">
+    <title>Recorder</title>
+    <style>
+        /* Стили */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: red;
+            margin-top: 20px;
+        }
+        .table-container {
+            margin: 20px auto;
+            width: 60%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            vertical-align: middle;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+        }
+        .action-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .welcome-message {
+            margin-top: 10px;
+        }
+        /* Стили для форм */
+        #auth-container, #register-container {
+            margin: 20px auto;
+            width: 300px;
+        }
+        #auth-container input, #register-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        #auth-container button, #register-container button, #increment-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #increment-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #increment-button:hover {
+            background-color: #0b7dda;
+        }
+        #increment-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        /* Стили для уведомлений (если вы решите их использовать) */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Зеленый */
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recorder</h1>
+    <!-- Сообщение об ошибке -->
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+    <!-- Таблица с пользователями и очками -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th>Очки пользователя</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Таблица будет заполнена динамически -->
+            </tbody>
+        </table>
+    </div>
+    <!-- Контейнер для авторизации -->
+    <div id="auth-container">
+        <h2>Вход</h2>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Имя пользователя" required>
+            <button id="login-button" type="button">Войти</button>
+        </form>
+        <p>Нет аккаунта? <a href="#" id="show-register">Зарегистрироваться</a></p>
+    </div>
+    <!-- Контейнер для регистрации -->
+    <div id="register-container" style="display: none;">
+        <h2>Регистрация</h2>
+        <form id="register-form">
+            <input type="text" id="reg-username" placeholder="Имя пользователя" required>
+            <button id="register-button" type="button">Зарегистрироваться</button>
+        </form>
+        <p>Уже есть аккаунт? <a href="#" id="show-login">Войти</a></p>
+    </div>
+    <!-- Приветственное сообщение -->
+    <div id="welcome-message" style="display: none;">
+        <p>Добро пожаловать, <span id="user-name"></span>! <button id="logout-button">Выйти</button></p>
+        <!-- Кнопка для увеличения очков -->
+        <button id="increment-button">Увеличить очки</button>
+    </div>
+    <!-- JavaScript -->
+    <script>
+        // Показать форму регистрации
+        document.getElementById('show-register').addEventListener('click', (event) => {
+            event.preventDefault();
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'block';
+        });
+        // Показать форму входа
+        document.getElementById('show-login').addEventListener('click', (event) => {
+            event.preventDefault();
+            document.getElementById('register-container').style.display = 'none';
+            document.getElementById('auth-container').style.display = 'block';
+        });
+        // Обработчик регистрации
+        document.getElementById('register-button').addEventListener('click', async () => {
+            const username = document.getElementById('reg-username').value;
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: username})
+            });
+            if (response.ok) {
+                const data = await response.json();
+                // Сохраняем токен и имя пользователя
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('username', username);
+                // Обновляем интерфейс
+                document.getElementById('register-container').style.display = 'none';
+                document.getElementById('welcome-message').style.display = 'block';
+                document.getElementById('user-name').textContent = username;
+                // Загружаем обновлённые записи
+                await loadRecords();
+            } else {
+                const errorData = await response.json();
+                alert('Ошибка при регистрации: ' + (errorData.detail || 'Неизвестная ошибка'));
+            }
+        });
+        // Обработчик входа
+        document.getElementById('login-button').addEventListener('click', async () => {
+            await login();
+        });
+        // Обработчик формы входа при нажатии Enter
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await login();
+        });
+        async function login() {
+            const username = document.getElementById('username').value;
+            const response = await fetch('/token', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `username=${encodeURIComponent(username)}`
+            });
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('username', username);
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('welcome-message').style.display = 'block';
+                document.getElementById('user-name').textContent = username;
+                // Загружаем обновлённые записи
+                await loadRecords();
+            } else {
+                alert('Неверное имя пользователя');
+            }
+        }
+        // Обработчик выхода
+        document.getElementById('logout-button').addEventListener('click', () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('username');
+            document.getElementById('auth-container').style.display = 'block';
+            document.getElementById('welcome-message').style.display = 'none';
+        });
+        // Обработчик кнопки увеличения очков
+        document.getElementById('increment-button').addEventListener('click', async () => {
+            await incrementScore();
+        });
+        // Функция для увеличения очков
+        async function incrementScore() {
+            const token = localStorage.getItem('access_token');
+            const response = await fetch('/increment_score/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                // Загружаем обновлённые записи
+                await loadRecords();
+            } else {
+                alert('Ошибка при увеличении очков');
+            }
+        }
+        // Функция для загрузки и отображения записей
+        async function loadRecords() {
+            const response = await fetch('/records/');
+            if (response.ok) {
+                const records = await response.json();
+                updateTable(records);
+            } else {
+                console.error('Ошибка при загрузке записей');
+            }
+        }
+        // Функция для обновления таблицы на странице
+        function updateTable(records) {
+            const tbody = document.querySelector('.table-container tbody');
+            tbody.innerHTML = ''; // Очищаем текущее содержимое таблицы
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                const userCell = document.createElement('td');
+                userCell.textContent = record.user_name;
+                const scoreCell = document.createElement('td');
+                scoreCell.textContent = record.user_score;
+                row.appendChild(userCell);
+                row.appendChild(scoreCell);
+                tbody.appendChild(row);
+            });
+        }
+        // Проверяем, есть ли сохраненный токен при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('access_token');
+            const username = localStorage.getItem('username');
+            if (token && username) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('welcome-message').style.display = 'block';
+                document.getElementById('user-name').textContent = username;
+            }
+            // Загружаем записи
+            await loadRecords();
+        });
+    </script>
+</body>
+</html>

@@ -8,7 +8,7 @@ RUN python -m venv ${VENV_DIR}
 ENV PATH="${VENV_DIR}/bin:$PATH"
 
 
-COPY ./services/nooga/crs_portal/requirements.txt /
+COPY ./services/romalab/recorder/requirements.txt /
 
 RUN --mount=type=cache,target=/pip-cache \
     ls -l /pip-cache; \
@@ -17,19 +17,16 @@ RUN --mount=type=cache,target=/pip-cache \
 
 FROM ${PYTHON_IMAGE}
 ARG VENV_DIR
-# CRS_VERSION set during build & push phase
+# RECORDER_VERSION set during build & push phase
 # this way the version of the image is always available in container without needing put it in deploy phase
-ARG CRS_VERSION
+ARG RECORDER_VERSION
 ENV PATH="${VENV_DIR}/bin:$PATH"
-ENV CRS_VERSION=${CRS_VERSION}
-
+ENV RECORDER_VERSION=${RECORDER_VERSION}
 
 COPY --from=build ${VENV_DIR} ${VENV_DIR}
 
-RUN mkdir -p /services/nooga
+RUN mkdir -p /services/romalab
 COPY ./services/uvicorn-run.sh /services/
-# COPY ./services/nooga/common /services/nooga/common
-COPY ./services/nooga/crs_portal /services/nooga/crs_portal
-# COPY ./frontend/src/modules/core/i18n/translations frontend/src/modules/core/i18n/translations
+COPY ./services/romalab/recorder /services/romalab/recorder
 
-CMD ./services/uvicorn-run.sh nooga.crs_portal.main:app --host 0.0.0.0 --port=${CRS_PORTAL_PORT}
+CMD ./services/uvicorn-run.sh romalab.recorder.main:app --host 0.0.0.0 --port=${RECORDER_PORT}

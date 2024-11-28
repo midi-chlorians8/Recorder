@@ -1,0 +1,7 @@
+fastapi[all]==0.113.0
+pydantic==2.8.0
+uvicorn[standard]
+sqlmodel
+jinja2
+python-jose[cryptography]
+passlib[bcrypt]

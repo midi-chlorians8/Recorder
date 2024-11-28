@@ -1,0 +1,16 @@
+# PIP requirements which needed only for local development purpose
+# and not to be installed to Production Docker image
+black==23.7.0
+mypy==1.11.2
+mypy-extensions==1.0.0
+ruff==0.7.2
+pytest==7.4.2
+
+types-xmltodict==0.13.0.3
+types-requests==2.31.0.3
+types-python-jose==3.3.4.8
+types-passlib==1.7.7.13
+types-pytz==2024.2.0.20240913
+
+# See load_dotenv() in code to getting known why we need this package
+python-dotenv==1.0.0
