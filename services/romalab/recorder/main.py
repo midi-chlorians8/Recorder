@@ -15,15 +15,25 @@ app = FastAPI(title="Recorder API", version="1.0.0")
 #templates = Jinja2Templates(directory="templates")
 
 # Настройка базы данных
-#DATABASE_URL = "sqlite:///./test.db"
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'test.db')}"
 
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+# Fetch database configuration from environment variables
+DATABASE_USER = os.getenv("RECORDER_DB_USER")
+DATABASE_PASSWORD = os.getenv("RECORDER_DB_PASSWORD")
+DATABASE_HOST = os.getenv("RECORDER_DB_HOST")
+DATABASE_PORT = os.getenv("RECORDER_DB_PORT")
+DATABASE_NAME = os.getenv("RECORDER_DB_NAME")
 
+# Construct the PostgreSQL database URL
+DATABASE_URL = (
+    f"postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}"
+    f"@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+)
 
 engine = create_engine(DATABASE_URL, echo=False)
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
 def create_db_and_tables():
