@@ -40,32 +40,32 @@ services:
     # profiles:
     #   - backend
 
-  # db:
-  #   image: postgres:14.9-alpine
-  #   container_name: db
-  #   hostname: db
-  #   ports:
-  #     - "${RECORDER_DB_PORT}:${RECORDER_DB_PORT}"
-  #   environment:
-  #     POSTGRES_DB: ${RECORDER_DB_NAME}
-  #     POSTGRES_USER: ${RECORDER_DB_USER}
-  #     POSTGRES_PASSWORD: ${RECORDER_DB_PASSWORD}
-  #     # Used by init.sh script
-  #     RECORDER_DB_USER: ${RECORDER_DB_USER}
-  #     RECORDER_DB_HOST: ${RECORDER_DB_HOST}
-  #     RECORDER_DB_PORT: ${RECORDER_DB_PORT}
-  #   volumes:
-  #   #  - ./infrastructure/local/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
-  #     - db:/var/lib/postgresql/data
-  #   command: -p ${RECORDER_DB_PORT}
-  #   # healthcheck:
-  #   #   test: [
-  #   #     "CMD-SHELL",
-  #   #     "pg_isready -p ${RECORDER_DB_PORT} -U ${RECORDER_DB_USER} -d ${RECORDER_AIRFLOW_DB_NAME}"
-  #   #   ]
-  #   #   interval: 3s
-  #   #   timeout: 5s
-  #   #   retries: 5
+  db:
+    image: postgres:14.15-alpine
+    container_name: db
+    hostname: db
+    ports:
+      - "${RECORDER_DB_PORT}:${RECORDER_DB_PORT}"
+    environment:
+      POSTGRES_DB: ${RECORDER_DB_NAME}
+      POSTGRES_USER: ${RECORDER_DB_USER}
+      POSTGRES_PASSWORD: ${RECORDER_DB_PASSWORD}
+      # Used by init.sh script
+      RECORDER_DB_USER: ${RECORDER_DB_USER}
+      RECORDER_DB_HOST: ${RECORDER_DB_HOST}
+      RECORDER_DB_PORT: ${RECORDER_DB_PORT}
+    volumes:
+    #  - ./infrastructure/local/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - db:/var/lib/postgresql/data
+    #command: -p ${RECORDER_DB_PORT}
+    # healthcheck:
+    #   test: [
+    #     "CMD-SHELL",
+    #     "pg_isready -p ${RECORDER_DB_PORT} -U ${RECORDER_DB_USER} -d ${RECORDER_AIRFLOW_DB_NAME}"
+    #   ]
+    #   interval: 3s
+    #   timeout: 5s
+    #   retries: 5
 
 volumes:
   db:

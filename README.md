@@ -82,7 +82,12 @@ make db-create-user
 
 
 
+cp .env.override .env 
+
 make git-setup-hooks
 make py-env-create
+
 source .venv/bin/activate
+make pip-install-dev
+
 ./services/uvicorn-run.sh romalab.recorder.main:app --host 0.0.0.0 --port=3100

@@ -12,13 +12,15 @@ from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, sele
 from pydantic import BaseModel
 
 app = FastAPI(title="Recorder API", version="1.0.0")
-templates = Jinja2Templates(directory="templates")
+#templates = Jinja2Templates(directory="templates")
 
 # Настройка базы данных
 #DATABASE_URL = "sqlite:///./test.db"
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'test.db')}"
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
 engine = create_engine(DATABASE_URL, echo=False)
