@@ -19,11 +19,12 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Fetch database configuration from environment variables
-DATABASE_USER = os.getenv("RECORDER_DB_USER")
-DATABASE_PASSWORD = os.getenv("RECORDER_DB_PASSWORD")
-DATABASE_HOST = os.getenv("RECORDER_DB_HOST")
-DATABASE_PORT = os.getenv("RECORDER_DB_PORT")
-DATABASE_NAME = os.getenv("RECORDER_DB_NAME")
+DATABASE_USER = os.getenv("RECORDER_DB_USER", "local")
+DATABASE_PASSWORD = os.getenv("RECORDER_DB_PASSWORD", "local")
+DATABASE_HOST = os.getenv("RECORDER_DB_HOST", "localhost")
+DATABASE_PORT = os.getenv("RECORDER_DB_PORT", "5432")
+DATABASE_NAME = os.getenv("RECORDER_DB_NAME", "postgres")
+
 
 # Construct the PostgreSQL database URL
 DATABASE_URL = (
