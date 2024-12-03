@@ -1,43 +1,43 @@
 services:
-  # recorder:
-  #   build:
-  #     context: ./
-  #     dockerfile: services/romalab/recorder/Dockerfile
-  #   command: >
-  #     ./services/uvicorn-run.sh romalab.recorder.main:app
-  #       --port=${RECORDER_PORT}
-  #       --host=0.0.0.0
-  #       --reload
-  #       --log-level=info
-  #   hostname: ${RECORDER_HOST}
-  #   container_name:  recorder
-  #   ports:
-  #     - "${RECORDER_PORT}:${RECORDER_PORT}"
-  #   volumes:
-  #     - source: services/
-  #       target: /services
-  #       type: bind
-  #       read_only: true
-  #   env_file:
-  #     - ./.env
-  #     #- ./.env.override
-  #   environment:
-  #     - RECORDER_VERSION
-  #   #network_mode: host
+  recorder:
+    build:
+      context: ./
+      dockerfile: services/romalab/recorder/Dockerfile
+    command: >
+      ./services/uvicorn-run.sh romalab.recorder.main:app
+        --port=${RECORDER_PORT}
+        --host=0.0.0.0
+        --reload
+        --log-level=info
+    hostname: ${RECORDER_HOST}
+    container_name:  recorder
+    ports:
+      - "${RECORDER_PORT}:${RECORDER_PORT}"
+    volumes:
+      - source: services/
+        target: /services
+        type: bind
+        read_only: true
+    env_file:
+      - ./.env
+      #- ./.env.override
+    environment:
+      - RECORDER_VERSION
+    #network_mode: host
 
-  #   # logging:
-  #   #   options:
-  #   #     max-size: "2m"
-  #   #     max-file: "3"
-  #   # depends_on:
-  #   #   db:
-  #   #     condition: service_healthy
-  #   # deploy:
-  #   #   resources:
-  #   #     limits:
-  #   #       cpus: "4"
-  #   # profiles:
-  #   #   - backend
+    # logging:
+    #   options:
+    #     max-size: "2m"
+    #     max-file: "3"
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "4"
+    # profiles:
+    #   - backend
 
   db:
     image: postgres:14.15-alpine
