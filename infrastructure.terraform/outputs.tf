@@ -1,5 +1,6 @@
+
 output "recorder_instance_public_ip" {
-  value = aws_instance.recorder_instance.public_ip
+  value       = aws_eip.recorder_eip.public_ip
   description = "Публичный IP-адрес сервера"
 }
 

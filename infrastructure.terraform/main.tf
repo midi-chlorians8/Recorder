@@ -13,7 +13,6 @@ provider "aws" {
   # Доступ к AWS (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) предполагается в окружении или в файле профиля.
 }
 
-# Поиск AMI для Ubuntu 24.04 (предполагается, что к моменту использования AMI доступна)
 data "aws_ami" "ubuntu" {
   owners      = ["099720109477"]
   most_recent = true
@@ -28,7 +27,7 @@ locals {
   user_data = <<-EOF
     #!/bin/bash
     apt-get update -y
-    apt-get install -y ca-certificates curl gnupg lsb-release
+    apt-get install -y ca-certificates curl gnupg lsb-release make
 
     # Установка Docker из официального репо
     mkdir -p /etc/apt/keyrings
@@ -48,6 +47,15 @@ locals {
   EOF
 }
 
+resource "aws_eip" "recorder_eip" {
+  vpc      = true
+  instance = aws_instance.recorder_instance.id
+  tags = {
+    Name    = "recorder-eip"
+    Project = "recorder"
+  }
+}
+
 resource "aws_instance" "recorder_instance" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
@@ -58,7 +66,7 @@ resource "aws_instance" "recorder_instance" {
     volume_size = 30
     volume_type = "gp3"
   }
-  
+
   vpc_security_group_ids = [aws_security_group.allow_all_inbound.id]
 
   # Используем дефолтную VPC, не задавая subnet_id 
