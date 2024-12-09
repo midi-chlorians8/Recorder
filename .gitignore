@@ -46,3 +46,5 @@ MyCreds
 # .tfstate files
 *.tfstate
 *.tfstate.*
+
+.terraform/
