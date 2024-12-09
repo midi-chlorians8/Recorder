@@ -1,5 +1,5 @@
 services:
-  portal:
+  recorder:
     build:
       context: ./
       dockerfile: services/romalab/recorder/Dockerfile
@@ -24,8 +24,7 @@ services:
     environment:
       - RECORDER_VERSION
     #network_mode: host
-    extra_hosts:
-        - "${RECORDER_DB_HOST}:127.0.0.1"
+
     # logging:
     #   options:
     #     max-size: "2m"

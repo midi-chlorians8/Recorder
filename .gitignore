@@ -39,3 +39,15 @@ archive.zip
 .DS_Store
 
 MyCreds
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+.terraform/
+.terraform.lock.hcl
+
+before_apply.txt
