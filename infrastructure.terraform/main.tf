@@ -19,7 +19,7 @@ data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-*-24.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 }
 
@@ -58,6 +58,8 @@ resource "aws_instance" "recorder_instance" {
     volume_size = 30
     volume_type = "gp3"
   }
+  
+  vpc_security_group_ids = [aws_security_group.allow_all_inbound.id]
 
   # Используем дефолтную VPC, не задавая subnet_id 
   associate_public_ip_address = true

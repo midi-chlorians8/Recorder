@@ -49,3 +49,5 @@ MyCreds
 
 .terraform/
 .terraform.lock.hcl
+
+before_apply.txt
