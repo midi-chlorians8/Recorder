@@ -48,3 +48,4 @@ MyCreds
 *.tfstate.*
 
 .terraform/
+.terraform.lock.hcl
